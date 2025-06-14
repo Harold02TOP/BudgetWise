@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BudgetWise</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">BudgetWise - Gestion de Budget</h1>
+
+        <!-- Section 1 : Définir le budget mensuel -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Définir le Budget Mensuel</h2>
+            <form id="budget-form" class="flex gap-2">
+                <input type="number" id="budget-amount" placeholder="Montant (€)" class="border p-2" required>
+                <input type="text" id="budget-month" placeholder="Mois (ex. 2025-06)" class="border p-2" required>
+                <button type="submit" class="bg-blue-500 text-white p-2 rounded">Définir Budget</button>
+            </form>
+            <p class="text-xl mt-4">Budget actuel : <span id="current-budget">0 €</span></p>
+        </section>
+
+        <!-- Section 2 : Ajouter une transaction -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Ajouter une Transaction</h2>
+            <form id="transaction-form" class="flex gap-2 flex-wrap">
+                <select id="transaction-type" class="border p-2" required>
+                    <option value="income">Revenu</option>
+                    <option value="expense">Dépense</option>
+                </select>
+                <input type="number" id="transaction-amount" placeholder="Montant (€)" class="border p-2" required>
+                <input type="text" id="transaction-category" placeholder="Catégorie (ex. Nourriture)" class="border p-2" required>
+                <input type="date" id="transaction-date" class="border p-2" required>
+                <input type="text" id="transaction-tags" placeholder="Tags (ex. Urgent, Récurrent)" class="border p-2">
+                <button type="submit" class="bg-green-500 text-white p-2 rounded">Ajouter</button>
+            </form>
+        </section>
+
+        <!-- Section 3 : Ajouter un rappel (bonus) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Ajouter un Rappel</h2>
+            <form id="reminder-form" class="flex gap-2 flex-wrap">
+                <input type="text" id="reminder-description" placeholder="Description" class="border p-2" required>
+                <input type="number" id="reminder-amount" placeholder="Montant (€)" class="border p-2" required>
+                <input type="datetime-local" id="reminder-due-date" class="border p-2" required>
+                <button type="submit" class="bg-yellow-500 text-white p-2 rounded">Ajouter Rappel</button>
+            </form>
+        </section>
+
+        <!-- Section 4 : Afficher le solde -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Solde Disponible</h2>
+            <p class="text-xl" id="balance">0 €</p>
+        </section>
+
+        <!-- Section 5 : Liste des rappels (bonus) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Rappels</h2>
+            <ul id="reminders-list" class="border p-4 bg-yellow-100"></ul>
+        </section>
+
+        <!-- Section 6 : Liste des transactions -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Liste des Transactions</h2>
+            <table id="transaction-table" class="w-full border">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-2">Type</th>
+                        <th class="p-2">Montant (€)</th>
+                        <th class="p-2">Catégorie</th>
+                        <th class="p-2">Date</th>
+                        <th class="p-2">Tags</th>
+                        <th class="p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="transaction-list"></tbody>
+            </table>
+        </section>
+
+        <!-- Section 7 : Filtrer par période -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Filtrer par Période</h2>
+            <form id="filter-form" class="flex gap-2">
+                <input type="date" id="filter-start" class="border p-2" required>
+                <input type="date" id="filter-end" class="border p-2" required>
+                <button type="submit" class="bg-gray-500 text-white p-2 rounded">Filtrer</button>
+            </form>
+        </section>
+
+        <!-- Section 8 : Statistiques (bonus : graphique) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Statistiques des Dépenses</h2>
+            <canvas id="expense-chart" class="max-w-lg mx-auto"></canvas>
+        </section>
+
+        <!-- Section 9 : Export PDF (bonus) -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold mb-2">Exporter le Rapport</h2>
+            <button id="export-pdf" class="bg-purple-500 text-white p-2 rounded">Télécharger le Rapport Mensuel (PDF)</button>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1, h2 {
+        color: #333;
+    }
+
+    section {
+        margin: 20px 0;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 5px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    input, select, button {
+        padding: 10px;
+        width: 200px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .edit-btn, .delete-btn {
+        padding: 5px 10px;
+        margin: 0 5px;
+        cursor: pointer;
+    }
+
+    .edit-btn {
+        background-color: #008CBA;
+        color: white;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+  </style>
+</html>

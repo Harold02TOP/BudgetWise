@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: budgetwise-backend
+    env: python
+    plan: free
+    region: oregon
+    buildCommand: |
+      pip install -r backend/requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SQLALCHEMY_DATABASE_URL
+        value: sqlite:///./budgetwise.db
+    autoDeploy: true
+    rootDir: backend
+    healthCheckPath: /docs
+
+  - type: static
+    name: budgetwise-frontend
+    plan: free
+    region: oregon
+    rootDir: frontend
+    buildCommand: ""
+    publishPath: .
+    autoDeploy: true
